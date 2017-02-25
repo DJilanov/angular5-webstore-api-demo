@@ -17,6 +17,7 @@
         productImagesPath: '/img/',
         productProductionImagesPath: '/../dist/img/',
         productProductionImagesSmallPath: '/../dist/img/small/',
+        relativeImageFolder: '/../training_seo/img/'
     };
     // exporting function of the config object
     function getConfig() {

@@ -10,7 +10,7 @@ const fs = require('fs');
 const config = require('./config').getConfig();
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, __dirname + '/../img/')
+    cb(null, __dirname + config.relativeImageFolder)
   },
   filename: function (req, file, cb) {
     let name = file.originalname.replace('.jpg', '.png');
