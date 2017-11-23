@@ -2,10 +2,11 @@
  * @cache Used to cache the data from the db for faster and easier workflow
  */
 (function() {
-    var messages = [];
-    var products = [];
-    var categories = [];
-    var orders = [];
+    let messages = [];
+    let products = [];
+    let categories = [];
+    let orders = [];
+    let users = [];
     /**
      * @getOrders it returns all of the orders that are currently cached
      */
@@ -135,6 +136,18 @@
         categories.push(category);
     }
     /**
+     * @setUsers it add users to the cache
+     */
+    function setUsers(newUsers) {
+        users = newUsers;
+    }
+    /**
+     * @getUsers it gets users from the cache
+     */
+    function getUsers() {
+        return users;
+    }
+    /**
      * @setCategories it updates categories to the cache
      */
     function updateCategories(category) {
@@ -179,6 +192,9 @@
         getCategories: getCategories,
         setCategories: setCategories,
         removeCategory: removeCategory,
-        updateCategories: updateCategories
+        updateCategories: updateCategories,
+
+        getUsers: getUsers,
+        setUsers: setUsers
     };
 }());

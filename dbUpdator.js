@@ -318,11 +318,11 @@
     function updateProduct(product, files, res) {
         var query = getQuery(product);
         let update = getProductQuery(product, files, res);
-        mongoose.connection.db.collection('products', function(err, collection) {
-            if(!collection) {
+        mongoose.connection.db.collection('products',  (err, collection) => {
+            if(!collection || err) {
                 return;
             }
-            collection.update(query, update, function(err, docs) {
+            collection.update(query, update, (err, docs) => {
                 if(!err) {
                     update._id = product._id;
                     cache.updateProduct(update);

@@ -18,6 +18,7 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage: storage });
+const cpUpload = upload.fields([{ name: 'images', maxCount: 8 }]);
 const bodyParser = require('body-parser');
 // here we declare all functions we use for the standart user interface
 const cache = require('./cache');
@@ -35,6 +36,7 @@ dbUpdator.setCache(cache);
 const app = express();
 // this will let us get nv.PORT || 8080;        // set our port
 const port = process.env.PORT || 8080; // set our port
+// Config for the image uploads
 
 // ROUTES FOR OUR API
 // =============================================================================
@@ -57,12 +59,6 @@ app.all('/*', function(req, res, next) {
     // we call the real root
     next();
 });
-// USED ONLY FOR TESTING PURPOSES. REMOVE IT WHEN RDY
-
-app.get('/api/test', function(req, res) {
-    // imageUpdator.optimiseImages(req, res);
-    dbMigrationHelper.changeMainImageField();
-});
 // when we call from the fetcher service we return the products
 app.get('/api/products', function(req, res) {
     dbFinder.fetchAllProducts(req, res);
@@ -74,7 +70,6 @@ app.put('/api/products', function(req, res) {
     }
 });
 // when we call from the fetcher service we send product
-var cpUpload = upload.fields([{ name: 'main_image', maxCount: 1 }, { name: 'other_images', maxCount: 8 }]);
 app.post('/api/products', cpUpload, function(req, res) {
     let data = JSON.parse(req.body.body);
     let loginData = {
@@ -133,7 +128,7 @@ app.put('/api/categories', function(req, res) {
 // when we call from the fetcher service we send id and we delete the category WHITOUT deleting the products
 // status: needs test
 app.delete('/api/categories', function(req, res) {
-    var loginData = {
+    let loginData = {
         username: req.param('username'),
         password: req.param('password')
     };
@@ -149,7 +144,7 @@ app.get('/api/productsAndCategories', function(req, res) {
 // when we call from the fetcher service we return all messages
 // status: Working correctly
 app.get('/api/message', function(req, res) {
-    var loginData = {
+    let loginData = {
         username: req.param('username'),
         password: req.param('password')
     };
@@ -165,7 +160,7 @@ app.post('/api/message', function(req, res) {
 // when we want to delete message
 // status: Working correctly
 app.delete('/api/message', function(req, res) {
-    var loginData = {
+    let loginData = {
         username: req.param('username'),
         password: req.param('password')
     };
@@ -181,7 +176,7 @@ app.post('/api/order', function(req, res) {
 // when we want to delete order
 // status: Needs testing
 app.delete('/api/order', function(req, res) {
-    var loginData = {
+    let loginData = {
         username: req.param('username'),
         password: req.param('password')
     };

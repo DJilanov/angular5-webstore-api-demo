@@ -161,6 +161,11 @@
                     cache.setOrders(orders);
                 });
             });
+            mongoose.connection.db.collection('users', function(err, collection) {
+                collection.find().toArray(function(err, users) {
+                    cache.setUsers(users);
+                });
+            });
         });
 
         // If the connection throws an error
