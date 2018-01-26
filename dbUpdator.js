@@ -6,7 +6,7 @@
     const ObjectId = require('mongodb').ObjectID;
     const mongoose = require('mongoose');
     const config = require('./config').getConfig();
-    const imageUpdator = require('./imageUpdator');
+    // const imageUpdator = require('./imageUpdator');
     const nodemailer = require('nodemailer');
     const fs = require('fs');
     let contactTemplate = null;
@@ -456,16 +456,16 @@
         });
     }
 
-    function copyImages(files) {
-        if(files.main_image) {
-            imageUpdator.resizeImage(files.main_image[0]);
-        }
-        if(files.other_images) {
-            for(let otherImagesCounter = 0; otherImagesCounter < files.other_images.length; otherImagesCounter++) { 
-                imageUpdator.resizeImage(files.other_images[otherImagesCounter]);
-            }
-        }
-    }
+    // function copyImages(files) {
+    //     if(files.main_image) {
+    //         imageUpdator.resizeImage(files.main_image[0]);
+    //     }
+    //     if(files.other_images) {
+    //         for(let otherImagesCounter = 0; otherImagesCounter < files.other_images.length; otherImagesCounter++) { 
+    //             imageUpdator.resizeImage(files.other_images[otherImagesCounter]);
+    //         }
+    //     }
+    // }
 
     /**
      * @connectDb Used to make the connection to the Database
@@ -495,7 +495,7 @@
     module.exports = {
         setCache: setCache,
         connectDb: connectDb,
-        copyImages: copyImages,
+        // copyImages: copyImages,
         updateProduct: updateProduct,
         createProduct: createProduct,
         deleteProduct: deleteProduct,

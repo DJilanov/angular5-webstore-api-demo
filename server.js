@@ -24,7 +24,7 @@ const bodyParser = require('body-parser');
 const cache = require('./cache');
 const dbFinder = require('./dbFinder');
 const dbUpdator = require('./dbUpdator');
-const imageUpdator = require('./imageUpdator');
+// const imageUpdator = require('./imageUpdator');
 const dbMigrationHelper = require('./dbMigrationHelper');
 const validator = require('./validator');
 // we connect to the db using the credentials and fetch the db localy
@@ -68,6 +68,17 @@ app.put('/api/products', function(req, res) {
     if(validator.validate(req.body.loginData)) {
         dbUpdator.updateProduct(req.body.product, res);
     }
+});
+// when we call from the fetcher service we send all data
+app.post('/api/allData', function(req, res) {
+    let data = req.body;
+    let loginData = {
+        username: data.username,
+        password: data.password
+    };
+    if(validator.validate(loginData)) {
+        dbFinder.fetchAllData(req, res);
+   }
 });
 // when we call from the fetcher service we send product
 app.post('/api/products', cpUpload, function(req, res) {
@@ -188,12 +199,12 @@ app.delete('/api/order', function(req, res) {
 // status: Working correctly
 app.post('/api/admin/login', function(req, res) {
     if(validator.validate(req.body)) {
-        res.json(200, {
+        res.status(200).json(200, {
             'success': true,
             'reason': null
         });
     } else {
-        res.json(404, {
+        res.status(404).json({
             'success': false,
             'reason': 'Wrong Data'
         });

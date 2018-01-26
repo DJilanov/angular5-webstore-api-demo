@@ -31,6 +31,14 @@
         }
         res.json(response);
     }
+    
+    function fetchAllData(req, res) {
+        res.status(200).json({
+            products: cache.getProducts(),
+            messages: cache.getMessages(),
+            categories: cache.getCategories()
+        });
+    }
     /**
      * @fetchAllProducts It fetch all the products from the back-end
      * @req {Object} The query from the front-end
@@ -193,6 +201,7 @@
         find: find,
         setCache: setCache,
         connectDb: connectDb,
+        fetchAllData: fetchAllData,
         fetchAllMessages: fetchAllMessages,
         fetchAllProducts: fetchAllProducts,
         fetchAllCategories: fetchAllCategories,
