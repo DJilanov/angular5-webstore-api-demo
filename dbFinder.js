@@ -45,7 +45,32 @@
      * @res {Object} The res to the front-end
      */
     function fetchAllProducts(req, res) {
-        res.json(cache.getProducts());
+        let products = cache.getProducts().map(product => {
+            return {
+                id: product._id,
+                category: product.category,
+                isShownMainPage: product.daily_offer || product.is_new,
+                title: product.title,
+                description: product.description,
+                moreInfo: product.more_info,
+                moreDetails: product.more_details,
+                params: product.params,
+                newPrice: product.new_price,
+                oldPrice: product.old_price,
+                isDailyOffer: product.daily_offer,
+                zIndex: product.zIndex,
+                isShown: product.shown,
+                count: product.count,
+                rating: product.rating,
+                isNew: product.is_new,
+                isOnCarousel: product.carousel,
+                link: product.link,
+                make: product.make,
+                mainImage: product.main_image,
+                otherImages: product.other_images
+            }
+        });
+        res.json(products);
     }
     /**
      * @fetchAllCategories It fetch all the categories from the back-end
@@ -53,7 +78,18 @@
      * @res {Object} The res to the front-end
      */
     function fetchAllCategories(req, res) {
-        res.json(cache.getCategories());
+        let categories = cache.getCategories().map(category => {
+            return {
+                id: category._id,
+                title: category.title,
+                name: category.name,
+                zIndex: category.zIndex,
+                shownOnNav: category.shownOnNav,
+                link: category.link,
+                products: category.products
+            }
+        });
+        res.json(categories);
     }
     /**
      * @fetchAllMessages It fetch all the messages from the back-end
