@@ -68,40 +68,44 @@
         // change the main_image location of all of the currect docs!!!!
         let otherImagesArray = [];
         let main_image = '';
-        if(files.other_images !== undefined) {
-            files.other_images.forEach(function(element) {
-                otherImagesArray.push(element.filename);
-            });
-        } else {
-            otherImagesArray = product.other_images;
-        }
-        if(files.main_image !== undefined) {
-            main_image = files.main_image[0].filename;
-        } else {
-            main_image = product.main_image;
-        }
-        return {
-            carousel: product.carousel,
+        // if(files.other_images !== undefined) {
+        //     files.other_images.forEach(function(element) {
+        //         otherImagesArray.push(element.filename);
+        //     });
+        // } else {
+        //     otherImagesArray = product.other_images;
+        // }
+        // if(files.main_image !== undefined) {
+        //     main_image = files.main_image[0].filename;
+        // } else {
+        //     main_image = product.main_image;
+        // }
+        let productQuery = {
+            carousel: product.isOnCarousel,
             category: product.category,
             count: product.count,
-            daily_offer: product.daily_offer,
+            daily_offer: product.isDailyOffer,
             description: product.description,
-            is_new: product.is_new,
+            is_new: product.isNew,
             link: product.link,
             main_image: main_image,
             make: product.make,
-            more_details: product.more_details,
-            more_info: product.more_info,
-            new_price: product.new_price,
-            old_price: product.old_price,
+            more_details: product.moreDetails,
+            more_info: product.moreInfo,
+            new_price: product.newPrice,
+            old_price: product.oldPrice,
             other_images: otherImagesArray,
             params: product.params,
             rating: product.rating,
-            shown: product.shown,
+            shown: product.isShown,
             title: product.title,
             typeahed: product.typeahed,
             zIndex: product.zIndex
         };
+        if(product.id) {
+            productQuery._id = product.id;
+        }
+        return productQuery;
     }
     /**
      * @sendOrderEmail Used to send email to our company email using our no reply one
@@ -324,7 +328,6 @@
             }
             collection.update(query, update, (err, docs) => {
                 if(!err) {
-                    update._id = product._id;
                     cache.updateProduct(update);
                     returnSuccess(res, update);
                 } else {
@@ -360,17 +363,17 @@
      * @deleteProduct Used to delete the prodtuc from the database
      * @product: product object that is going to be deleted
      */
-    function deleteProduct(product, res) {
-        product = JSON.parse(product);
+    function deleteProduct(product, files, res) {
         var query = getQuery(product);
+        let update = getProductQuery(product, files, res);
         mongoose.connection.db.collection('categories', function(err, collection) {
             if(!collection) {
                 return;
             }
-            collection.find(query, function(err, docs) {
+            collection.remove(query, function(err, docs) {
                 if(!err) {
-                    cache.removeProduct(product);
-                    returnSuccess(res, product);
+                    cache.removeProduct(update);
+                    returnSuccess(res, update);
                 } else {
                     returnProblem(err, res);
                 }
@@ -425,7 +428,7 @@
 
     function getQuery(el) {
         return {
-            "_id": ObjectId(el._id)
+            "_id": ObjectId(el.id)
         };
     }
 

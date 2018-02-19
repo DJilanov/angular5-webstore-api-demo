@@ -82,16 +82,18 @@ app.post('/api/allData', function(req, res) {
 });
 // when we call from the fetcher service we send product
 app.post('/api/products', cpUpload, function(req, res) {
-    let data = JSON.parse(req.body.body);
+    let data = req.body;
     let loginData = {
         username: data.username,
         password: data.password
     };
     if(validator.validate(loginData)) {
-        if(data.product._id !== undefined) {
+        if(data.type === 'update') {
             dbUpdator.updateProduct(data.product, req.files, res);
-        } else {
+        } else if(data.type === 'create') {
             dbUpdator.createProduct(data.product, req.files, res);
+        }  else if(data.type === 'delete') {
+            dbUpdator.deleteProduct(data.product, req.files, res);
         }
         // dbUpdator.copyImages(req.files);
 
