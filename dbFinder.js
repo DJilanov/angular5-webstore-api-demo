@@ -33,10 +33,46 @@
     }
     
     function fetchAllData(req, res) {
+        let products = cache.getProducts().map(product => {
+            return {
+                id: product._id,
+                category: product.category,
+                isShownMainPage: product.daily_offer || product.is_new,
+                title: product.title,
+                description: product.description,
+                moreInfo: product.more_info,
+                moreDetails: product.more_details,
+                params: product.params,
+                newPrice: product.new_price,
+                oldPrice: product.old_price,
+                isDailyOffer: product.daily_offer,
+                zIndex: product.zIndex,
+                isShown: product.shown,
+                count: product.count,
+                rating: product.rating,
+                isNew: product.is_new,
+                isOnCarousel: product.carousel,
+                link: product.link,
+                make: product.make,
+                mainImage: product.main_image,
+                otherImages: product.other_images
+            }
+        });
+        let categories = cache.getCategories().map(category => {
+            return {
+                id: category._id,
+                title: category.title,
+                name: category.name,
+                zIndex: category.zIndex,
+                shownOnNav: category.shownOnNav,
+                link: category.link,
+                products: category.products
+            }
+        });
         res.status(200).json({
-            products: cache.getProducts(),
+            products: products,
             messages: cache.getMessages(),
-            categories: cache.getCategories()
+            categories: categories
         });
     }
     /**

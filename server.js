@@ -93,7 +93,7 @@ app.post('/api/products', cpUpload, function(req, res) {
         } else {
             dbUpdator.createProduct(data.product, req.files, res);
         }
-        dbUpdator.copyImages(req.files);
+        // dbUpdator.copyImages(req.files);
 
     }
 });
