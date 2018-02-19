@@ -329,7 +329,7 @@
             collection.update(query, update, (err, docs) => {
                 if(!err) {
                     cache.updateProduct(update);
-                    returnSuccess(res, update);
+                    returnSuccess(res, product);
                 } else {
                     // todo: handle the case when 1 gets broken but the other are correctly set
                     returnProblem(err, res);
@@ -350,8 +350,9 @@
             collection.insertOne(update, function(err, docs) {
                 if(!err) {
                     update._id = docs.insertedId.toHexString();
+                    product.id = docs.insertedId.toHexString();
                     cache.addProduct(update);
-                    returnSuccess(res, update);
+                    returnSuccess(res, product);
                 } else {
                     // todo: handle the case when 1 gets broken but the other are correctly set
                     returnProblem(err, res);
@@ -366,14 +367,14 @@
     function deleteProduct(product, files, res) {
         var query = getQuery(product);
         let update = getProductQuery(product, files, res);
-        mongoose.connection.db.collection('categories', function(err, collection) {
+        mongoose.connection.db.collection('products', function(err, collection) {
             if(!collection) {
                 return;
             }
             collection.remove(query, function(err, docs) {
                 if(!err) {
                     cache.removeProduct(update);
-                    returnSuccess(res, update);
+                    returnSuccess(res, product);
                 } else {
                     returnProblem(err, res);
                 }
