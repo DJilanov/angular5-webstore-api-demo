@@ -102,9 +102,6 @@
             typeahed: product.typeahed,
             zIndex: product.zIndex
         };
-        if(product.id) {
-            productQuery._id = product.id;
-        }
         return productQuery;
     }
     /**
@@ -328,6 +325,7 @@
             }
             collection.update(query, update, (err, docs) => {
                 if(!err) {
+                    update._id = product.id;
                     cache.updateProduct(update);
                     returnSuccess(res, product);
                 } else {
@@ -373,6 +371,7 @@
             }
             collection.remove(query, function(err, docs) {
                 if(!err) {
+                    update._id = product.id;
                     cache.removeProduct(update);
                     returnSuccess(res, product);
                 } else {
