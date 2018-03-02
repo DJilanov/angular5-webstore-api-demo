@@ -345,6 +345,9 @@
                 let uniqueRandomImageName = 'image-' + randomString();
                 product.otherImages[product.otherImages.length] =  saveImageToFS(image, __dirname + config.serverImageFolderPath, uniqueRandomImageName);
             });
+            product.otherImages = product.otherImages.filter((image) => {
+                return image.length;
+            });
         }
         let update = getProductQuery(product);
         mongoose.connection.db.collection('testing', function(err, collection) {
