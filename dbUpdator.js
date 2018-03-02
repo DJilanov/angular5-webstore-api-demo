@@ -350,7 +350,7 @@
             });
         }
         let update = getProductQuery(product);
-        mongoose.connection.db.collection('testing', function(err, collection) {
+        mongoose.connection.db.collection('products', function(err, collection) {
             if(!collection) {
                 return;
             }
