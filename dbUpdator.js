@@ -304,11 +304,11 @@
      */
     function updateProduct(product, files, res) {
         var query = getQuery(product);
-        if(files.mainImage) {
+        if(files.mainImage.length) {
             let uniqueRandomImageName = 'image-' + randomString();
             product.mainImage = saveImageToFS(files.mainImage, __dirname + '/testImages/', uniqueRandomImageName);
         }
-        if(files.otherImages) {
+        if(files.otherImages.length) {
             files.otherImages.map((image) => {
                 let uniqueRandomImageName = 'image-' + randomString();
                 product.otherImages[product.otherImages.length] =  saveImageToFS(image, __dirname + '/testImages/', uniqueRandomImageName);
@@ -336,11 +336,11 @@
      * @product: product that will be created
      */
     function createProduct(product, files, res) {
-        if(files.mainImage) {
+        if(files.mainImage.length) {
             let uniqueRandomImageName = 'image-' + randomString();
             product.mainImage = saveImageToFS(files.mainImage, __dirname + config.serverImageFolderPath, uniqueRandomImageName);
         }
-        if(files.otherImages) {
+        if(files.otherImages.length) {
             files.otherImages.map((image) => {
                 let uniqueRandomImageName = 'image-' + randomString();
                 product.otherImages[product.otherImages.length] =  saveImageToFS(image, __dirname + config.serverImageFolderPath, uniqueRandomImageName);
