@@ -4,21 +4,8 @@
 
 // call the packages we need
 const express = require('express'); // call express
-// we set the multer
-const multer  = require('multer');
 const fs = require('fs');
 const config = require('./config').getConfig();
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, __dirname + config.relativeImageFolder)
-  },
-  filename: function (req, file, cb) {
-    let name = file.originalname.replace('.jpg', '.png');
-    cb(null, name) //Appending .png
-  }
-});
-const upload = multer({ storage: storage });
-const cpUpload = upload.fields([{ name: 'images', maxCount: 8 }]);
 const bodyParser = require('body-parser');
 // here we declare all functions we use for the standart user interface
 const cache = require('./cache');
@@ -44,7 +31,7 @@ const router = express.Router(); // get an instance of the express Router
 // START THE SERVER
 // =============================================================================
 app.listen(port);
-app.use(bodyParser());
+app.use(bodyParser.json({limit: '50mb'}));
 
 // CORS header security off.
 // TODO: !!!!IMPORTANT!!!! When we have specific domain we MUST enable it!
@@ -81,22 +68,24 @@ app.post('/api/allData', function(req, res) {
    }
 });
 // when we call from the fetcher service we send product
-app.post('/api/products', cpUpload, function(req, res) {
+app.post('/api/products', function(req, res) {
     let data = req.body;
     let loginData = {
         username: data.username,
         password: data.password
     };
+    let imageData = {
+        mainImage: data.mainImage,
+        otherImages: data.otherImages
+    };
     if(validator.validate(loginData)) {
         if(data.type === 'update') {
-            dbUpdator.updateProduct(data.product, req.files, res);
+            dbUpdator.updateProduct(data.product, imageData, res);
         } else if(data.type === 'create') {
-            dbUpdator.createProduct(data.product, req.files, res);
+            dbUpdator.createProduct(data.product, imageData, res);
         }  else if(data.type === 'delete') {
-            dbUpdator.deleteProduct(data.product, req.files, res);
+            dbUpdator.deleteProduct(data.product, res);
         }
-        // dbUpdator.copyImages(req.files);
-
     }
 });
 // when we call from the fetcher service we send id and we delete the product

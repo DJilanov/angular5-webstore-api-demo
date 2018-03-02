@@ -9,6 +9,7 @@
     "imagemin": "5.2.2",
     "imagemin-mozjpeg": "6.0.0",
     "imagemin-pngquant": "5.0.0",
+    "jimp": "^0.2.28",
     "mongodb": "2.1.18",
     "mongoose": "4.5.1",
     "multer": "1.2.0",

@@ -11,10 +11,10 @@
         emailPassword: 'Toniwebsite',
         email: 'jilanovltd@gmail.com',
         // email: 'djilanov@gmail.com',
-        productImagesPath: '/img/',
-        productProductionImagesPath: '/../dist/img/',
-        productProductionImagesSmallPath: '/../dist/img/small/',
-        relativeImageFolder: '/../training_seo/img/'
+        serverImageFolderPath: '/../training_seo/src/assets/product-images/',
+        serverImageFolderPathSmall: '/../training_seo/src/assets/product-images/small/',
+        serverProdImageFolderPath: '/../training_seo/dist/assets/product-images/',
+        serverProdImageFolderPathSmall: '/../training_seo/dist/assets/product-images/small/',
     };
     // exporting function of the config object
     function getConfig() {

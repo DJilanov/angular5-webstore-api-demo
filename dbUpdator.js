@@ -4,11 +4,13 @@
 (function() {
     // we use it for creation of new object ids
     const ObjectId = require('mongodb').ObjectID;
+    const crypto = require('crypto');
     const mongoose = require('mongoose');
     const config = require('./config').getConfig();
     // const imageUpdator = require('./imageUpdator');
     const nodemailer = require('nodemailer');
     const fs = require('fs');
+    const Jimp = require("jimp");
     let contactTemplate = null;
     let orderTemplate = null;
     let cache = null;
@@ -64,23 +66,8 @@
         };
     }
 
-    function getProductQuery(product, files, res) {
-        // change the main_image location of all of the currect docs!!!!
-        let otherImagesArray = [];
-        let main_image = '';
-        // if(files.other_images !== undefined) {
-        //     files.other_images.forEach(function(element) {
-        //         otherImagesArray.push(element.filename);
-        //     });
-        // } else {
-        //     otherImagesArray = product.other_images;
-        // }
-        // if(files.main_image !== undefined) {
-        //     main_image = files.main_image[0].filename;
-        // } else {
-        //     main_image = product.main_image;
-        // }
-        let productQuery = {
+    function getProductQuery(product) {
+        return {
             carousel: product.isOnCarousel,
             category: product.category,
             count: product.count,
@@ -88,13 +75,13 @@
             description: product.description,
             is_new: product.isNew,
             link: product.link,
-            main_image: main_image,
+            main_image: product.mainImage,
             make: product.make,
             more_details: product.moreDetails,
             more_info: product.moreInfo,
             new_price: product.newPrice,
             old_price: product.oldPrice,
-            other_images: otherImagesArray,
+            other_images: product.otherImages,
             params: product.params,
             rating: product.rating,
             shown: product.isShown,
@@ -102,7 +89,6 @@
             typeahed: product.typeahed,
             zIndex: product.zIndex
         };
-        return productQuery;
     }
     /**
      * @sendOrderEmail Used to send email to our company email using our no reply one
@@ -318,7 +304,17 @@
      */
     function updateProduct(product, files, res) {
         var query = getQuery(product);
-        let update = getProductQuery(product, files, res);
+        if(files.mainImage) {
+            let uniqueRandomImageName = 'image-' + randomString();
+            product.mainImage = saveImageToFS(files.mainImage, __dirname + '/testImages/', uniqueRandomImageName);
+        }
+        if(files.otherImages) {
+            files.otherImages.map((image) => {
+                let uniqueRandomImageName = 'image-' + randomString();
+                product.otherImages[product.otherImages.length] =  saveImageToFS(image, __dirname + '/testImages/', uniqueRandomImageName);
+            });
+        }
+        let update = getProductQuery(product);
         mongoose.connection.db.collection('products',  (err, collection) => {
             if(!collection || err) {
                 return;
@@ -340,8 +336,18 @@
      * @product: product that will be created
      */
     function createProduct(product, files, res) {
-        let update = getProductQuery(product, files, res);
-        mongoose.connection.db.collection('products', function(err, collection) {
+        if(files.mainImage) {
+            let uniqueRandomImageName = 'image-' + randomString();
+            product.mainImage = saveImageToFS(files.mainImage, __dirname + config.serverImageFolderPath, uniqueRandomImageName);
+        }
+        if(files.otherImages) {
+            files.otherImages.map((image) => {
+                let uniqueRandomImageName = 'image-' + randomString();
+                product.otherImages[product.otherImages.length] =  saveImageToFS(image, __dirname + config.serverImageFolderPath, uniqueRandomImageName);
+            });
+        }
+        let update = getProductQuery(product);
+        mongoose.connection.db.collection('testing', function(err, collection) {
             if(!collection) {
                 return;
             }
@@ -362,9 +368,9 @@
      * @deleteProduct Used to delete the prodtuc from the database
      * @product: product object that is going to be deleted
      */
-    function deleteProduct(product, files, res) {
+    function deleteProduct(product, res) {
         var query = getQuery(product);
-        let update = getProductQuery(product, files, res);
+        let update = getProductQuery(product);
         mongoose.connection.db.collection('products', function(err, collection) {
             if(!collection) {
                 return;
@@ -373,6 +379,7 @@
                 if(!err) {
                     update._id = product.id;
                     cache.removeProduct(update);
+                    deleteImages(product);
                     returnSuccess(res, product);
                 } else {
                     returnProblem(err, res);
@@ -380,35 +387,119 @@
             });
         });
     }
+
+    function randomString() {
+        return crypto.createHash('sha1').update(crypto.randomBytes(20)).digest('hex');
+    }
+
+    function saveImageToFS(base64Data, location, filename) {
+        // Save base64 image to disk
+        try
+        {
+            // Decoding base-64 image
+            // Source: http://stackoverflow.com/questions/20267939/nodejs-write-base64-image-file
+            function decodeBase64Image(dataString) 
+            {
+                var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+                var response = {};
+
+                if (matches.length !== 3) 
+                {
+                    return new Error('Invalid input string');
+                }
+
+                response.type = matches[1];
+                response.data = new Buffer(matches[2], 'base64');
+
+                return response;
+            }
+
+            // Regular expression for image type:
+            // This regular image extracts the "jpeg" from "image/jpeg"
+            var imageTypeRegularExpression      = /\/(.*?)$/;      
+
+
+            var imageBuffer                      = decodeBase64Image(base64Data);
+            var userUploadedFeedMessagesLocation = location;
+
+            // This variable is actually an array which has 5 values,
+            // The [1] value is the real image extension
+            var imageTypeDetected                = imageBuffer
+                                                    .type
+                                                    .match(imageTypeRegularExpression);
+
+            var userUploadedImagePath            = userUploadedFeedMessagesLocation + 
+                                                filename +
+                                                '.' + 
+                                                imageTypeDetected[1];
+
+            var imageName = filename + '.' + imageTypeDetected[1]
+
+            // Save decoded binary image to disk
+            try
+            {
+                require('fs').writeFile(userUploadedImagePath, imageBuffer.data, () => {
+                    Jimp.read(userUploadedImagePath, function (err, image) {
+                        if (err) throw err;
+                        image.write(__dirname + config.serverProdImageFolderPath + imageName);
+                        image.scaleToFit(256, Jimp.AUTO)         // resize
+                                .quality(60)                 // set JPEG quality
+                                .greyscale()                 // set greyscale
+                                .write(__dirname + config.serverImageFolderPathSmall + imageName) // save
+                                .write(__dirname + config.serverProdImageFolderPathSmall + imageName); // save
+                    });
+                });
+            }
+            catch(error)
+            {
+                console.log('ERROR:', error);
+            }
+            return filename + '.' + imageTypeDetected[1];
+
+        }
+        catch(error)
+        {
+            console.log('ERROR:', error);
+        }
+    }
+
+    function addImagesToProduct(product, images) {
+
+    }
+
+    function deleteImages(product) {
+
+    }
+
     /**
      * @deleteProductImage Used to delete the product from the database
      * @product: product object witch image is going to be deleted
      * @image: image that is going to be deleted from the product and if no one else is using it from the server
      */
     function deleteProductImage(product, image, res) {
-        image = image;
-        product = JSON.parse(product);
-        let query = getQuery(product);
-        mongoose.connection.db.collection('categories', function(err, collection) {
-            if(!collection) {
-                return;
-            }
-            let products = cache.getProductsByImage(image);
-            if(products.length > 1) {
-                // we just delete the image from the product
-                removeImage(product, image);
-                updateProduct(product, {}, res);
-            } else if(products.length == 1) {
-                // we delete the image from the product and we delete the image
-                removeImage(product, image);
-                // TODO: delete the image from the FS
-                updateProduct(product, {}, res);
-            } else {
-                // TODO: Move that message to error message enum. Its place is not here!!!
-                returnProblem('The image is not in the back-end', res);
-            }
+        // image = image;
+        // product = JSON.parse(product);
+        // let query = getQuery(product);
+        // mongoose.connection.db.collection('categories', function(err, collection) {
+        //     if(!collection) {
+        //         return;
+        //     }
+        //     let products = cache.getProductsByImage(image);
+        //     if(products.length > 1) {
+        //         // we just delete the image from the product
+        //         removeImage(product, image);
+        //         updateProduct(product, {}, res);
+        //     } else if(products.length == 1) {
+        //         // we delete the image from the product and we delete the image
+        //         removeImage(product, image);
+        //         // TODO: delete the image from the FS
+        //         updateProduct(product, {}, res);
+        //     } else {
+        //         // TODO: Move that message to error message enum. Its place is not here!!!
+        //         returnProblem('The image is not in the back-end', res);
+        //     }
             
-        });
+        // });
     }
 
     function removeImage(product, image) {
