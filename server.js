@@ -89,16 +89,6 @@ app.post('/api/products', function(req, res) {
     }
 });
 // when we call from the fetcher service we send id and we delete the product
-app.delete('/api/products', function(req, res) {
-    let loginData = {
-        username: req.param('username'),
-        password: req.param('password')
-    };
-    if(validator.validate(loginData)) {
-        dbUpdator.deleteProduct(req.param('product'), res);
-    }
-});
-// when we call from the fetcher service we send id and we delete the product
 app.delete('/api/productImage', function(req, res) {
     let loginData = {
         username: req.param('username'),
@@ -155,19 +145,18 @@ app.get('/api/message', function(req, res) {
     }
 });
 // when we call from the fetcher service we recieve the message, save it to the db and send back status
-// status: Working correctly
 app.post('/api/message', function(req, res) {
-    dbUpdator.saveMessage(req, res);
-});
-// when we want to delete message
-// status: Working correctly
-app.delete('/api/message', function(req, res) {
+    let data = req.body;
     let loginData = {
-        username: req.param('username'),
-        password: req.param('password')
+        username: data.username,
+        password: data.password
     };
     if(validator.validate(loginData)) {
-        dbUpdator.deleteMessage(req.param('message'), res);
+        if(data.type === 'create') {
+            dbUpdator.createMessage(data.message, res);
+        }  else if(data.type === 'delete') {
+            dbUpdator.deleteMessage(data.message, res);
+        }
     }
 });
 // when we call from the fetcher service we recieve the order, save it to the db and send back status

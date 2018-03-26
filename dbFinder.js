@@ -69,9 +69,19 @@
                 products: category.products
             }
         });
+        let messages = cache.getMessages().map(message => {
+            return {
+                id: message._id,
+                name: message.name,
+                email: message.email,
+                phone: message.phone,
+                message: message.message,
+                date: message.date,
+            }
+        });
         res.status(200).json({
             products: products,
-            messages: cache.getMessages(),
+            messages: messages,
             categories: categories
         });
     }
@@ -133,7 +143,17 @@
      * @res {Object} The res to the front-end
      */
     function fetchAllMessages(req, res) {
-        res.json(cache.getMessages());
+        let messages = cache.getMessages().map(message => {
+            return {
+                id: message._id,
+                name: message.name,
+                email: message.email,
+                phone: message.phone,
+                message: message.message,
+                date: message.date,
+            }
+        });
+        res.json(messages);
     }
     /**
      * @find It searches in the back-end by query
