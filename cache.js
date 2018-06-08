@@ -59,7 +59,7 @@
      */
     function removeMessage(message) {
         for(var messagesCounter = 0; messagesCounter < messages.length; messagesCounter++) {
-            if(messages[messagesCounter]._id.toString() == message._id) {
+            if(messages[messagesCounter].id.toString() == message.id) {
                 messages.splice(messagesCounter, 1);
                 break;
             }
