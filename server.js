@@ -31,11 +31,11 @@ const router = express.Router(); // get an instance of the express Router
 // START THE SERVER
 // =============================================================================
 app.listen(port);
-app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.json({ limit: '50mb' }));
 
 // CORS header security off.
 // TODO: !!!!IMPORTANT!!!! When we have specific domain we MUST enable it!
-app.all('/*', function(req, res, next) {
+app.all('/*', function (req, res, next) {
     // we allow everyone to make calls ( we can easy block it to single domain where it is deployed )
     res.header("Access-Control-Allow-Origin", "*");
     // allow all methods
@@ -47,28 +47,28 @@ app.all('/*', function(req, res, next) {
     next();
 });
 // when we call from the fetcher service we return the products
-app.get('/api/products', function(req, res) {
+app.get('/api/products', function (req, res) {
     dbFinder.fetchAllProducts(req, res);
 });
 // when we call from the fetcher service we send product
-app.put('/api/products', function(req, res) {
-    if(validator.validate(req.body.loginData)) {
+app.put('/api/products', function (req, res) {
+    if (validator.validate(req.body.loginData)) {
         dbUpdator.updateProduct(req.body.product, res);
     }
 });
 // when we call from the fetcher service we send all data
-app.post('/api/allData', function(req, res) {
+app.post('/api/allData', function (req, res) {
     let data = req.body;
     let loginData = {
         username: data.username,
         password: data.password
     };
-    if(validator.validate(loginData)) {
+    if (validator.validate(loginData)) {
         dbFinder.fetchAllData(req, res);
-   }
+    }
 });
 // when we call from the fetcher service we send product
-app.post('/api/products', function(req, res) {
+app.post('/api/products', function (req, res) {
     let data = req.body;
     let loginData = {
         username: data.username,
@@ -78,108 +78,107 @@ app.post('/api/products', function(req, res) {
         mainImage: data.mainImage,
         otherImages: data.otherImages
     };
-    if(validator.validate(loginData)) {
-        if(data.type === 'update') {
+    if (validator.validate(loginData)) {
+        if (data.type === 'update') {
             dbUpdator.updateProduct(data.product, imageData, res);
-        } else if(data.type === 'create') {
+        } else if (data.type === 'create') {
             dbUpdator.createProduct(data.product, imageData, res);
-        }  else if(data.type === 'delete') {
+        } else if (data.type === 'delete') {
             dbUpdator.deleteProduct(data.product, res);
         }
     }
 });
 // when we call from the fetcher service we send id and we delete the product
-app.delete('/api/productImage', function(req, res) {
+app.delete('/api/productImage', function (req, res) {
     let loginData = {
         username: req.param('username'),
         password: req.param('password')
     };
-    if(validator.validate(loginData)) {
+    if (validator.validate(loginData)) {
         dbUpdator.deleteProductImage(req.param('product'), req.param('image'), res);
     }
 });
 // when we call from the fetcher service we return the categories
 // status: Working correctly
-app.get('/api/categories', function(req, res) {
+app.get('/api/categories', function (req, res) {
     dbFinder.fetchAllCategories(req, res);
 });
 // when we call from the fetcher service we send categorъ and we create it
 // status: needs test
-app.post('/api/categories', function(req, res) {
-    if(validator.validate(req.body.loginData)) {
+app.post('/api/categories', function (req, res) {
+    if (validator.validate(req.body.loginData)) {
         dbUpdator.createCategory(req.body.category, res);
     }
 });
 // when we call from the fetcher service we send array with categories and we update them all
 // status: needs test
-app.put('/api/categories', function(req, res) {
-    if(validator.validate(req.body.loginData)) {
+app.put('/api/categories', function (req, res) {
+    if (validator.validate(req.body.loginData)) {
         dbUpdator.updateCategories(req.body.categories, res);
     }
 });
 // when we call from the fetcher service we send id and we delete the category WHITOUT deleting the products
 // status: needs test
-app.delete('/api/categories', function(req, res) {
+app.delete('/api/categories', function (req, res) {
     let loginData = {
         username: req.param('username'),
         password: req.param('password')
     };
-    if(validator.validate(loginData)) {
+    if (validator.validate(loginData)) {
         dbUpdator.deleteCategory(req.param('category'), res);
     }
 });
 // when we call from the fetcher service we return the products and categories
 // status: Working correctly
-app.get('/api/productsAndCategories', function(req, res) {
+app.get('/api/productsAndCategories', function (req, res) {
     dbFinder.fetchAllProductsAndCategories(req, res);
 });
 // when we call from the fetcher service we return all messages
 // status: Working correctly
-app.get('/api/message', function(req, res) {
+app.get('/api/message', function (req, res) {
     let loginData = {
         username: req.param('username'),
         password: req.param('password')
     };
-    if(validator.validate(loginData)) {
+    if (validator.validate(loginData)) {
         dbFinder.fetchAllMessages(req, res);
     }
 });
 // when we call from the fetcher service we recieve the message, save it to the db and send back status
-app.post('/api/message', function(req, res) {
+app.post('/api/message', function (req, res) {
     let data = req.body;
     let loginData = {
         username: data.username,
         password: data.password
     };
-    if(validator.validate(loginData)) {
-        if(data.type === 'delete') {
-            dbUpdator.deleteMessage(data.message, res);
+    if (data.type === 'delete') {
+        if (validator.validate(loginData)) {
+            dbUpdator.deleteMessage(data, res);
         }
-    }
-    if(data.type === 'create') {
-        dbUpdator.createMessage(data.message, res);
+    } else {
+        dbUpdator.createMessage(data, res);
     }
 });
 // when we call from the fetcher service we recieve the order, save it to the db and send back status
 // status: Working correctly
-app.post('/api/order', function(req, res) {
+app.post('/api/order', function (req, res) {
     dbUpdator.saveOrder(req, res);
 });
 // when we want to delete order
 // status: Needs testing
-app.delete('/api/order', function(req, res) {
+app.delete('/api/order', function (req, res) {
     let loginData = {
         username: req.param('username'),
         password: req.param('password')
     };
-    if(validator.validate(loginData)) {
+    if (validator.validate(loginData)) {
         dbUpdator.deleteMessage(req.param('message'), res);
     }
 });
 // used to log in as administrator
 // status: Working correctly
-app.post('/api/admin/login', function(req, res) {
-    if(validator.validate(req.body)) {
+app.post('/api/admin/login', function (req, res) {
+    if (validator.validate(req.body)) {
         res.status(200).json(200, {
             'success': true,
             'reason': null

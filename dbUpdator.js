@@ -195,7 +195,7 @@
                 var response = Object.assign({
                     id: docs.insertedId.toHexString(),
                     'date': new Date()
-                }, req.body);
+                }, message);
                 if(!err) {
                     sendContactEmail(response);
                     cache.addMessage(response);
