@@ -153,7 +153,7 @@ app.post('/api/message', function (req, res) {
     };
     if (data.type === 'delete') {
         if (validator.validate(loginData)) {
-            dbUpdator.deleteMessage(data, res);
+            dbUpdator.deleteMessage(data.message, res);
         }
     } else {
         dbUpdator.createMessage(data, res);
