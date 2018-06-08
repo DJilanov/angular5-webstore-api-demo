@@ -193,7 +193,7 @@
             }
             collection.insertOne(query, function(err, docs) {
                 var response = Object.assign({
-                    id: docs.insertedId.toHexString(),
+                    _id: docs.insertedId.toHexString(),
                     'date': new Date()
                 }, message);
                 if(!err) {

@@ -59,11 +59,7 @@
      */
     function removeMessage(message) {
         for(var messagesCounter = 0; messagesCounter < messages.length; messagesCounter++) {
-            if(!messages[messagesCounter].id) {
-                console.log('Problem with local messages')
-                break;
-            }
-            if(messages[messagesCounter].id.toString() == message.id) {
+            if(messages[messagesCounter]._id.toString() == message.id) {
                 messages.splice(messagesCounter, 1);
                 break;
             }
