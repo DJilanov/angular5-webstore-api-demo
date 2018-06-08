@@ -152,11 +152,12 @@ app.post('/api/message', function(req, res) {
         password: data.password
     };
     if(validator.validate(loginData)) {
-        if(data.type === 'create') {
-            dbUpdator.createMessage(data.message, res);
-        }  else if(data.type === 'delete') {
+        if(data.type === 'delete') {
             dbUpdator.deleteMessage(data.message, res);
         }
+    }
+    if(data.type === 'create') {
+        dbUpdator.createMessage(data.message, res);
     }
 });
 // when we call from the fetcher service we recieve the order, save it to the db and send back status
