@@ -1,5 +1,5 @@
 /**
- * @imageUpdator Used to update database based on our needs
+ * @MigrationHelper Used to update database based on our needs
  */
 (function() {
     const mongoose = require('mongoose');

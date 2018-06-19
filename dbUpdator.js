@@ -1,13 +1,12 @@
 /**
  * @dbFinder Used to search in the db
  */
-(function() {
+(function () {
     // we use it for creation of new object ids
     const ObjectId = require('mongodb').ObjectID;
     const crypto = require('crypto');
     const mongoose = require('mongoose');
     const config = require('./config').getConfig();
-    // const imageUpdator = require('./imageUpdator');
     const nodemailer = require('nodemailer');
     const fs = require('fs');
     const Jimp = require("jimp");
@@ -97,7 +96,7 @@
     function sendOrderEmail(response) {
         var transporter = nodemailer.createTransport('smtps://' + config.emailUser + '%40gmail.com:' + config.emailPassword + '@smtp.gmail.com');
         var orders = '';
-        for(let productCounter = 0; productCounter < response.products.length; productCounter++) {
+        for (let productCounter = 0; productCounter < response.products.length; productCounter++) {
             orders += '<div><span>' + response.products[productCounter].title + '</span><span> с цена ' + response.products[productCounter].price + '</span></div>';
         }
         var template = orderTemplate.replace('{{email}}', response.email).replace('{{date}}', response.date).replace('{{name}}', response.name).replace('{{phone}}', response.phone).replace('{{message}}', response.message).replace('{{order}}', orders);
@@ -108,8 +107,8 @@
             text: template, // plaintext body
             html: template // html body
         };
-        transporter.sendMail(mailOptions, function(error, info){
-            if(error){
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
                 return console.log(error);
             }
             console.log('Message sent: ' + info.response);
@@ -129,8 +128,8 @@
             text: template, // plaintext body
             html: template // html body
         };
-        transporter.sendMail(mailOptions, function(error, info){
-            if(error){
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
                 return console.log(error);
             }
             console.log('Message sent: ' + info.response);
@@ -141,16 +140,16 @@
      */
     function saveOrder(req, res) {
         var query = getOrderQuery(req.body, res);
-        mongoose.connection.db.collection('orders', function(err, collection) {
-            if(!collection) {
+        mongoose.connection.db.collection('orders', function (err, collection) {
+            if (!collection) {
                 return;
             }
-            collection.insertOne(query, function(err, docs) {
+            collection.insertOne(query, function (err, docs) {
                 var response = Object.assign({
                     id: docs.insertedId.toHexString(),
                     'date': new Date()
                 }, req.body);
-                if(!err) {
+                if (!err) {
                     sendOrderEmail(response);
                     cache.addOrder(response);
                     returnSuccess(res);
@@ -167,12 +166,12 @@
     function deleteOrder(order, res) {
         order = JSON.parse(order);
         var query = getQuery(order);
-        mongoose.connection.db.collection('orders', function(err, collection) {
-            if(!collection) {
+        mongoose.connection.db.collection('orders', function (err, collection) {
+            if (!collection) {
                 return;
             }
-            collection.remove(query, function(err, docs) {
-                if(!err) {
+            collection.remove(query, function (err, docs) {
+                if (!err) {
                     cache.removeOrder(order);
                     returnSuccess(res, message);
                 } else {
@@ -181,22 +180,22 @@
             });
         });
     }
-    
+
     /**
      * @createMessage Used to save the message to the database
      */
     function createMessage(message, res) {
         var query = getMessageQuery(message);
-        mongoose.connection.db.collection('messages', function(err, collection) {
-            if(!collection) {
+        mongoose.connection.db.collection('messages', function (err, collection) {
+            if (!collection) {
                 return;
             }
-            collection.insertOne(query, function(err, docs) {
+            collection.insertOne(query, function (err, docs) {
                 var response = Object.assign({
                     _id: docs.insertedId.toHexString(),
                     'date': new Date()
                 }, message);
-                if(!err) {
+                if (!err) {
                     sendContactEmail(response);
                     cache.addMessage(response);
                     returnSuccess(res);
@@ -213,11 +212,11 @@
     function deleteMessage(message, res) {
         var query = getQuery(message);
         mongoose.connection.db.collection('messages', (err, collection) => {
-            if(!collection) {
+            if (!collection) {
                 return;
             }
             collection.remove(query, (err, docs) => {
-                if(!err) {
+                if (!err) {
                     cache.removeMessage(message);
                     returnSuccess(res, message);
                 } else {
@@ -233,12 +232,12 @@
     function deleteCategory(category, res) {
         category = JSON.parse(category);
         var query = getQuery(category);
-        mongoose.connection.db.collection('categories', function(err, collection) {
-            if(!collection) {
+        mongoose.connection.db.collection('categories', function (err, collection) {
+            if (!collection) {
                 return;
             }
-            collection.remove(query, function(err, docs) {
-                if(!err) {
+            collection.remove(query, function (err, docs) {
+                if (!err) {
                     cache.removeCategory(category);
                     returnSuccess(res, category);
                 } else {
@@ -254,12 +253,12 @@
     function createCategory(category, res) {
         var query = getQuery(category);
         delete category.new;
-        mongoose.connection.db.collection('categories', function(err, collection) {
-            if(!collection) {
+        mongoose.connection.db.collection('categories', function (err, collection) {
+            if (!collection) {
                 return;
             }
-            collection.insertOne(category, function(err, docs) {
-                if(!err) {
+            collection.insertOne(category, function (err, docs) {
+                if (!err) {
                     category._id = docs.insertedId.toHexString();
                     cache.addCategory(category);
                     returnSuccess(res, category);
@@ -275,18 +274,18 @@
      * @categoriesArray: category array that is going to be updated
      */
     function updateCategories(categoriesArray, res) {
-        mongoose.connection.db.collection('categories', function(err, collection) {
-            for(let counter = 0; counter < categoriesArray.length; counter++) {
+        mongoose.connection.db.collection('categories', function (err, collection) {
+            for (let counter = 0; counter < categoriesArray.length; counter++) {
                 let query = getQuery(categoriesArray[counter]);
                 let update = getCategoryQuery(categoriesArray[counter]);
-                if(!collection) {
+                if (!collection) {
                     return;
                 }
-                collection.update(query, update, function(err, docs) {
-                    if(!err) {
+                collection.update(query, update, function (err, docs) {
+                    if (!err) {
                         cache.updateCategories(categoriesArray[counter]);
                         // we return when all are sended and finished
-                        if(counter == categoriesArray.length - 1) {
+                        if (counter == categoriesArray.length - 1) {
                             returnSuccess(res, categoriesArray);
                         }
                     } else {
@@ -303,23 +302,23 @@
      */
     function updateProduct(product, files, res) {
         var query = getQuery(product);
-        if(files.mainImage.length) {
+        if (files.mainImage.length) {
             let uniqueRandomImageName = 'image-' + randomString();
-            product.mainImage = saveImageToFS(files.mainImage, __dirname + '/testImages/', uniqueRandomImageName);
+            product.mainImage = saveImageToFS(files.mainImage, __dirname + config.serverImageFolderPath, uniqueRandomImageName);
         }
-        if(files.otherImages.length) {
+        if (files.otherImages.length) {
             files.otherImages.map((image) => {
                 let uniqueRandomImageName = 'image-' + randomString();
-                product.otherImages[product.otherImages.length] =  saveImageToFS(image, __dirname + '/testImages/', uniqueRandomImageName);
+                product.otherImages[product.otherImages.length] = saveImageToFS(image, __dirname + config.serverImageFolderPath, uniqueRandomImageName);
             });
         }
         let update = getProductQuery(product);
-        mongoose.connection.db.collection('products',  (err, collection) => {
-            if(!collection || err) {
+        mongoose.connection.db.collection('products', (err, collection) => {
+            if (!collection || err) {
                 return;
             }
             collection.update(query, update, (err, docs) => {
-                if(!err) {
+                if (!err) {
                     update._id = product.id;
                     cache.updateProduct(update);
                     returnSuccess(res, product);
@@ -335,26 +334,26 @@
      * @product: product that will be created
      */
     function createProduct(product, files, res) {
-        if(files.mainImage.length) {
+        if (files.mainImage.length) {
             let uniqueRandomImageName = 'image-' + randomString();
             product.mainImage = saveImageToFS(files.mainImage, __dirname + config.serverImageFolderPath, uniqueRandomImageName);
         }
-        if(files.otherImages.length) {
+        if (files.otherImages.length) {
             files.otherImages.map((image) => {
                 let uniqueRandomImageName = 'image-' + randomString();
-                product.otherImages[product.otherImages.length] =  saveImageToFS(image, __dirname + config.serverImageFolderPath, uniqueRandomImageName);
+                product.otherImages[product.otherImages.length] = saveImageToFS(image, __dirname + config.serverImageFolderPath, uniqueRandomImageName);
             });
             product.otherImages = product.otherImages.filter((image) => {
                 return image.length;
             });
         }
         let update = getProductQuery(product);
-        mongoose.connection.db.collection('products', function(err, collection) {
-            if(!collection) {
+        mongoose.connection.db.collection('products', function (err, collection) {
+            if (!collection) {
                 return;
             }
-            collection.insertOne(update, function(err, docs) {
-                if(!err) {
+            collection.insertOne(update, function (err, docs) {
+                if (!err) {
                     update._id = docs.insertedId.toHexString();
                     product.id = docs.insertedId.toHexString();
                     cache.addProduct(update);
@@ -373,12 +372,12 @@
     function deleteProduct(product, res) {
         var query = getQuery(product);
         let update = getProductQuery(product);
-        mongoose.connection.db.collection('products', function(err, collection) {
-            if(!collection) {
+        mongoose.connection.db.collection('products', function (err, collection) {
+            if (!collection) {
                 return;
             }
-            collection.remove(query, function(err, docs) {
-                if(!err) {
+            collection.remove(query, function (err, docs) {
+                if (!err) {
                     update._id = product.id;
                     cache.removeProduct(update);
                     deleteImages(product);
@@ -394,73 +393,67 @@
         return crypto.createHash('sha1').update(crypto.randomBytes(20)).digest('hex');
     }
 
+    // Decoding base-64 image
+    // Source: http://stackoverflow.com/questions/20267939/nodejs-write-base64-image-file
+    function decodeBase64Image(dataString) {
+        var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        var response = {};
+
+        if (matches.length !== 3) {
+            return new Error('Invalid input string');
+        }
+
+        response.type = matches[1];
+        response.data = new Buffer(matches[2], 'base64');
+
+        return response;
+    }
+
     function saveImageToFS(base64Data, location, filename) {
         // Save base64 image to disk
-        try
-        {
-            // Decoding base-64 image
-            // Source: http://stackoverflow.com/questions/20267939/nodejs-write-base64-image-file
-            function decodeBase64Image(dataString) 
-            {
-                var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-                var response = {};
-
-                if (matches.length !== 3) 
-                {
-                    return new Error('Invalid input string');
-                }
-
-                response.type = matches[1];
-                response.data = new Buffer(matches[2], 'base64');
-
-                return response;
-            }
+        try {
 
             // Regular expression for image type:
             // This regular image extracts the "jpeg" from "image/jpeg"
-            var imageTypeRegularExpression      = /\/(.*?)$/;      
+            var imageTypeRegularExpression = /\/(.*?)$/;
 
 
-            var imageBuffer                      = decodeBase64Image(base64Data);
+            var imageBuffer = decodeBase64Image(base64Data);
             var userUploadedFeedMessagesLocation = location;
 
             // This variable is actually an array which has 5 values,
             // The [1] value is the real image extension
-            var imageTypeDetected                = imageBuffer
-                                                    .type
-                                                    .match(imageTypeRegularExpression);
+            var imageTypeDetected = imageBuffer
+                .type
+                .match(imageTypeRegularExpression);
 
-            var userUploadedImagePath            = userUploadedFeedMessagesLocation + 
-                                                filename +
-                                                '.' + 
-                                                imageTypeDetected[1];
+            var userUploadedImagePath = userUploadedFeedMessagesLocation +
+                filename +
+                '.' +
+                imageTypeDetected[1];
 
             var imageName = filename + '.' + imageTypeDetected[1]
 
             // Save decoded binary image to disk
-            try
-            {
-                require('fs').writeFile(userUploadedImagePath, imageBuffer.data, () => {
+            try {
+                fs.writeFile(userUploadedImagePath, imageBuffer.data, () => {
                     Jimp.read(userUploadedImagePath, function (err, image) {
                         if (err) throw err;
                         image.write(__dirname + config.serverProdImageFolderPath + imageName);
                         image.scaleToFit(256, Jimp.AUTO)         // resize
-                                .quality(60)                 // set JPEG quality
-                                .greyscale()                 // set greyscale
-                                .write(__dirname + config.serverImageFolderPathSmall + imageName) // save
-                                .write(__dirname + config.serverProdImageFolderPathSmall + imageName); // save
+                            .quality(60)                 // set JPEG quality
+                            .write(__dirname + config.serverImageFolderPathSmall + imageName) // save
+                            .write(__dirname + config.serverProdImageFolderPathSmall + imageName); // save
                     });
                 });
             }
-            catch(error)
-            {
+            catch (error) {
                 console.log('ERROR:', error);
             }
             return filename + '.' + imageTypeDetected[1];
 
         }
-        catch(error)
-        {
+        catch (error) {
             console.log('ERROR:', error);
         }
     }
@@ -500,19 +493,19 @@
         //         // TODO: Move that message to error message enum. Its place is not here!!!
         //         returnProblem('The image is not in the back-end', res);
         //     }
-            
+
         // });
     }
 
     function removeImage(product, image) {
-        if(product.main_image == image) {
+        if (product.main_image == image) {
             product.main_image = '';
         }
-        if(product.other_images.indexOf(image) !== -1) {
+        if (product.other_images.indexOf(image) !== -1) {
             var x = [];
             x.filter
-            product.other_images.filter(function(other_image) {
-                if(other_image !== image) {
+            product.other_images.filter(function (other_image) {
+                if (other_image !== image) {
                     return other_image;
                 }
             });
@@ -552,34 +545,23 @@
         });
     }
 
-    // function copyImages(files) {
-    //     if(files.main_image) {
-    //         imageUpdator.resizeImage(files.main_image[0]);
-    //     }
-    //     if(files.other_images) {
-    //         for(let otherImagesCounter = 0; otherImagesCounter < files.other_images.length; otherImagesCounter++) { 
-    //             imageUpdator.resizeImage(files.other_images[otherImagesCounter]);
-    //         }
-    //     }
-    // }
-
     /**
      * @connectDb Used to make the connection to the Database
      */
     function connectDb() {
         // If the connection throws an error
-        mongoose.connection.on('error', function(err) {
+        mongoose.connection.on('error', function (err) {
             console.log('[dbConnector]Mongoose default connection error: ' + err);
         });
 
         // When the connection is disconnected
-        mongoose.connection.on('disconnected', function() {
+        mongoose.connection.on('disconnected', function () {
             console.log('[dbConnector]Mongoose default connection disconnected');
         });
 
         // If the Node process ends, close the Mongoose connection
-        process.on('SIGINT', function() {
-            mongoose.connection.close(function() {
+        process.on('SIGINT', function () {
+            mongoose.connection.close(function () {
                 console.log('[dbConnector]Mongoose default connection disconnected through app termination');
                 process.exit(0);
             });

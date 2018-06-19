@@ -11,7 +11,6 @@ const bodyParser = require('body-parser');
 const cache = require('./cache');
 const dbFinder = require('./dbFinder');
 const dbUpdator = require('./dbUpdator');
-// const imageUpdator = require('./imageUpdator');
 const dbMigrationHelper = require('./dbMigrationHelper');
 const validator = require('./validator');
 // we connect to the db using the credentials and fetch the db localy
