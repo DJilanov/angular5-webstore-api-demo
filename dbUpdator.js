@@ -152,7 +152,7 @@
         if (!err) {
           sendOrderEmail(response);
           cache.addOrder(response);
-          returnSuccess(res);
+          returnSuccess(res, response);
         } else {
           returnProblem(err, res);
         }
