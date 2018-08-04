@@ -75,10 +75,23 @@
         date: message.date,
       }
     });
+    let orders = cache.getOrders().map(order => {
+      return {
+        id: order._id,
+        name: order.name,
+        email: order.email,
+        phone: order.phone,
+        message: order.message,
+        date: order.date,
+        orderId: order.orderId,
+        products: order.products,
+      }
+    });
     res.status(200).json({
       products: products,
       messages: messages,
-      categories: categories
+      categories: categories,
+      orders: orders
     });
   }
   /**
