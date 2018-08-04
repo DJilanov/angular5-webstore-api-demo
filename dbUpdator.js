@@ -146,9 +146,9 @@
       }
       collection.insertOne(query, function (err, docs) {
         var response = Object.assign({
-          id: docs.insertedId.toHexString(),
+          orderId: docs.insertedId.toHexString(),
           'date': new Date()
-        }, req.body);
+        });
         if (!err) {
           sendOrderEmail(response);
           cache.addOrder(response);
