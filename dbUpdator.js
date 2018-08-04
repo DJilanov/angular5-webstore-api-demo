@@ -525,7 +525,7 @@
   function getOrderNumber() {
     let length = (numberOfOrder + '').length;
     let number = '0'.repeat(4 - length) + numberOfOrder;
-    let date = (new Date()).toISOString().split('T')[0].replace('-','');
+    let date = (new Date()).toISOString().split('T')[0].split('-').join('');
     return date + number;
   }
 
