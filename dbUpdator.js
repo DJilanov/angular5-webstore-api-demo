@@ -9,10 +9,16 @@
   const mongooseService = require('./mongoose');
   const nodemailer = require('nodemailer');
   const fs = require('fs');
-  const Jimp = require("jimp");
+  const Jimp = require('jimp');
+  const schedule = require('node-schedule');
   let contactTemplate = null;
   let orderTemplate = null;
   let cache = null;
+  let numberOfOrder = 1;
+
+  schedule.scheduleJob('0 0 * * *', () => { 
+    numberOfOrder = 1;
+  }) // run everyday at midnight
 
   fs.readFile(__dirname + '/email-templates/order-builded.html', function (err, html) {
     orderTemplate = html.toString();
@@ -50,6 +56,7 @@
       'phone': body.phone,
       'message': body.message,
       'moreinfo': body.moreinfo,
+      'orderId': getOrderNumber(),
       'date': new Date()
     };
   }
@@ -153,8 +160,9 @@
           sendOrderEmail(response);
           cache.addOrder(response);
           returnSuccess(res, {
-            orderId: docs.insertedId.toHexString()
+            orderId: getOrderNumber()
           });
+          numberOfOrder++;
         } else {
           returnProblem(err, res);
         }
@@ -512,6 +520,13 @@
         }
       });
     }
+  }
+
+  function getOrderNumber() {
+    let length = (numberOfOrder + '').length;
+    let number = '0'.repeat(4 - length) + numberOfOrder;
+    let date = (new Date()).toISOString().split('T')[0].replace('-','');
+    return date + number;
   }
 
   function getQuery(el) {
