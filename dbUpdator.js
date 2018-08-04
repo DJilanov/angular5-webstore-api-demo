@@ -146,13 +146,15 @@
       }
       collection.insertOne(query, function (err, docs) {
         var response = Object.assign({
-          orderId: docs.insertedId.toHexString(),
+          id: docs.insertedId.toHexString(),
           'date': new Date()
-        });
+        }, req.body);
         if (!err) {
           sendOrderEmail(response);
           cache.addOrder(response);
-          returnSuccess(res, response);
+          returnSuccess(res, {
+            orderId: docs.insertedId.toHexString()
+          });
         } else {
           returnProblem(err, res);
         }
