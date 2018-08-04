@@ -3,14 +3,10 @@
  */
 (function () {
   // we use it for creation of new object ids
-  var ObjectId = require('mongodb').ObjectID;
-  var mongoose = require('mongoose');
-  var config = require('./config').getConfig();
-  // database arrays
-  var products = [];
-  var categories = [];
-  var messages = [];
-  var cache = {};
+  const ObjectId = require('mongodb').ObjectID;
+  const config = require('./config').getConfig();
+  const mongooseService = require('./mongoose');
+  var cache = null;
 
   /**
    * @setCache set the cache as local variable
@@ -164,7 +160,7 @@
     // we build the search query
     var parameter = buildSearchParam(req.query);
     console.log('[dbFinder:find] Searching for ' + JSON.stringify(parameter));
-    mongoose.connection.db.collection('worklogs', function (err, collection) {
+    mongooseService.getMongoose().connection.db.collection('worklogs', function (err, collection) {
       collection.find(parameter).toArray(function (err, docs) {
         buildResponse(docs, res);
       });
@@ -234,67 +230,10 @@
 
     return response;
   }
-  /**
-   * @connectDb Used to make the connection to the Database
-   */
-  function connectDb() {
-    // we cache the product list when we open the back-end for faster working speed
-    mongoose.connection.on('connected', function () {
-      console.log('[dbConnector]Mongoose default connection open');
-      mongoose.connection.db.collection('products', function (err, collection) {
-        collection.find().toArray(function (err, products) {
-          cache.setProducts(products);
-        });
-      });
-      mongoose.connection.db.collection('categories', function (err, collection) {
-        collection.find().toArray(function (err, categories) {
-          cache.setCategories(categories);
-        });
-      });
-      mongoose.connection.db.collection('messages', function (err, collection) {
-        collection.find().toArray(function (err, messages) {
-          cache.setMessages(messages);
-        });
-      });
-      mongoose.connection.db.collection('orders', function (err, collection) {
-        collection.find().toArray(function (err, orders) {
-          cache.setOrders(orders);
-        });
-      });
-      mongoose.connection.db.collection('users', function (err, collection) {
-        collection.find().toArray(function (err, users) {
-          cache.setUsers(users);
-        });
-      });
-    });
-
-    // If the connection throws an error
-    mongoose.connection.on('error', function (err) {
-      console.log('[dbConnector]Mongoose default connection error: ' + err);
-      mongoose.disconnect();
-    });
-
-    // When the connection is disconnected
-    mongoose.connection.on('disconnected', function () {
-      console.log('[dbConnector]Mongoose default connection disconnected');
-      mongoose.connect(config.dbAddress, { server: { auto_reconnect: true } });
-    });
-
-    // If the Node process ends, close the Mongoose connection
-    process.on('SIGINT', function () {
-      mongoose.connection.close(function () {
-        console.log('[dbConnector]Mongoose default connection disconnected through app termination');
-        process.exit(0);
-      });
-    });
-    // get database
-    mongoose.connect(config.dbAddress, { server: { auto_reconnect: true } });
-  }
 
   module.exports = {
     find: find,
     setCache: setCache,
-    connectDb: connectDb,
     fetchAllData: fetchAllData,
     fetchAllMessages: fetchAllMessages,
     fetchAllProducts: fetchAllProducts,

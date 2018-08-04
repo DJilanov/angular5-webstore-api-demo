@@ -5,8 +5,8 @@
   // we use it for creation of new object ids
   const ObjectId = require('mongodb').ObjectID;
   const crypto = require('crypto');
-  const mongoose = require('mongoose');
   const config = require('./config').getConfig();
+  const mongooseService = require('./mongoose');
   const nodemailer = require('nodemailer');
   const fs = require('fs');
   const Jimp = require("jimp");
@@ -140,7 +140,7 @@
    */
   function saveOrder(req, res) {
     var query = getOrderQuery(req.body, res);
-    mongoose.connection.db.collection('orders', function (err, collection) {
+    mongooseService.getMongoose().connection.db.collection('orders', function (err, collection) {
       if (!collection) {
         return;
       }
@@ -166,7 +166,7 @@
   function deleteOrder(order, res) {
     order = JSON.parse(order);
     var query = getQuery(order);
-    mongoose.connection.db.collection('orders', function (err, collection) {
+    mongooseService.getMongoose().connection.db.collection('orders', function (err, collection) {
       if (!collection) {
         return;
       }
@@ -186,7 +186,7 @@
    */
   function createMessage(message, res) {
     var query = getMessageQuery(message);
-    mongoose.connection.db.collection('messages', function (err, collection) {
+    mongooseService.getMongoose().connection.db.collection('messages', function (err, collection) {
       if (!collection) {
         return;
       }
@@ -211,7 +211,7 @@
    */
   function deleteMessage(message, res) {
     var query = getQuery(message);
-    mongoose.connection.db.collection('messages', (err, collection) => {
+    mongooseService.getMongoose().connection.db.collection('messages', (err, collection) => {
       if (!collection) {
         return;
       }
@@ -232,7 +232,7 @@
   function deleteCategory(category, res) {
     category = JSON.parse(category);
     var query = getQuery(category);
-    mongoose.connection.db.collection('categories', function (err, collection) {
+    mongooseService.getMongoose().connection.db.collection('categories', function (err, collection) {
       if (!collection) {
         return;
       }
@@ -253,7 +253,7 @@
   function createCategory(category, res) {
     var query = getQuery(category);
     delete category.new;
-    mongoose.connection.db.collection('categories', function (err, collection) {
+    mongooseService.getMongoose().connection.db.collection('categories', function (err, collection) {
       if (!collection) {
         return;
       }
@@ -274,7 +274,7 @@
    * @categoriesArray: category array that is going to be updated
    */
   function updateCategories(categoriesArray, res) {
-    mongoose.connection.db.collection('categories', function (err, collection) {
+    mongooseService.getMongoose().connection.db.collection('categories', function (err, collection) {
       for (let counter = 0; counter < categoriesArray.length; counter++) {
         let query = getQuery(categoriesArray[counter]);
         let update = getCategoryQuery(categoriesArray[counter]);
@@ -313,7 +313,7 @@
       });
     }
     let update = getProductQuery(product);
-    mongoose.connection.db.collection('products', (err, collection) => {
+    mongooseService.getMongoose().connection.db.collection('products', (err, collection) => {
       if (!collection || err) {
         return;
       }
@@ -348,7 +348,7 @@
       });
     }
     let update = getProductQuery(product);
-    mongoose.connection.db.collection('products', function (err, collection) {
+    mongooseService.getMongoose().connection.db.collection('products', function (err, collection) {
       if (!collection) {
         return;
       }
@@ -372,7 +372,7 @@
   function deleteProduct(product, res) {
     var query = getQuery(product);
     let update = getProductQuery(product);
-    mongoose.connection.db.collection('products', function (err, collection) {
+    mongooseService.getMongoose().connection.db.collection('products', function (err, collection) {
       if (!collection) {
         return;
       }
@@ -545,36 +545,8 @@
     });
   }
 
-  /**
-   * @connectDb Used to make the connection to the Database
-   */
-  function connectDb() {
-    // If the connection throws an error
-    mongoose.connection.on('error', function (err) {
-      console.log('[dbConnector]Mongoose default connection error: ' + err);
-      mongoose.disconnect();
-    });
-
-    // When the connection is disconnected
-    mongoose.connection.on('disconnected', function () {
-      console.log('[dbConnector]Mongoose default connection disconnected');
-      mongoose.connect(config.dbAddress, { server: { auto_reconnect: true } });
-    });
-
-    // If the Node process ends, close the Mongoose connection
-    process.on('SIGINT', function () {
-      mongoose.connection.close(function () {
-        console.log('[dbConnector]Mongoose default connection disconnected through app termination');
-        process.exit(0);
-      });
-    });
-    // get database
-    mongoose.connect(config.dbAddress, { server: { auto_reconnect: true } });
-  }
-
   module.exports = {
     setCache: setCache,
-    connectDb: connectDb,
     // copyImages: copyImages,
     updateProduct: updateProduct,
     createProduct: createProduct,

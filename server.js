@@ -9,15 +9,16 @@ const config = require('./config').getConfig();
 const bodyParser = require('body-parser');
 // here we declare all functions we use for the standart user interface
 const cache = require('./cache');
+const mongoose = require('./mongoose');
 const dbFinder = require('./dbFinder');
 const dbUpdator = require('./dbUpdator');
 const dbMigrationHelper = require('./dbMigrationHelper');
 const validator = require('./validator');
 // we connect to the db using the credentials and fetch the db localy
-dbFinder.connectDb();
+mongoose.setCache(cache);
 dbFinder.setCache(cache);
-dbUpdator.connectDb();
 dbUpdator.setCache(cache);
+mongoose.connectDb();
 // define our app using express
 const app = express();
 // this will let us get nv.PORT || 8080;        // set our port
