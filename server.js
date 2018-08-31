@@ -172,7 +172,7 @@ app.delete('/api/order', function (req, res) {
     password: req.param('password')
   };
   if (validator.validate(loginData)) {
-    dbUpdator.deleteMessage(req.param('message'), res);
+    dbUpdator.deleteOrder(req.param('order'), res);
   }
 });
 // used to log in as administrator

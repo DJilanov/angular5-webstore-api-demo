@@ -103,6 +103,9 @@
   function sendOrderEmail(response) {
     var transporter = nodemailer.createTransport('smtps://' + config.emailUser + '%40gmail.com:' + config.emailPassword + '@smtp.gmail.com');
     var orders = '';
+    if(!response.products) {
+      return;
+    }
     for (let productCounter = 0; productCounter < response.products.length; productCounter++) {
       orders += '<div><span>' + getProductById(response.products[productCounter].id).title['bg'] + ' * ' + response.products[productCounter].amount + '</span></div>';
     }
