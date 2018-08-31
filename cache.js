@@ -83,6 +83,14 @@
         }
         return array;
     }
+
+    function getProductById(id) {
+      for(let productsCounter = 0; productsCounter < products.length; productsCounter++) {
+        if(products[productsCounter]._id.toString() === id) {
+          return products[productsCounter];
+        }
+      }
+    }
     /**
      * @setProducts it sets messages to the cache
      */
@@ -176,6 +184,7 @@
         setProducts: setProducts,
         updateProduct: updateProduct,
         removeProduct: removeProduct,
+        getProductById: getProductById,
         getProductsByImage: getProductsByImage,
 
         addOrder: addOrder,

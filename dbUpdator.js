@@ -104,9 +104,16 @@
     var transporter = nodemailer.createTransport('smtps://' + config.emailUser + '%40gmail.com:' + config.emailPassword + '@smtp.gmail.com');
     var orders = '';
     for (let productCounter = 0; productCounter < response.products.length; productCounter++) {
-      orders += '<div><span>' + response.products[productCounter].title + '</span><span> с цена ' + response.products[productCounter].price + '</span></div>';
+      orders += '<div><span>' + getProductById(response.products[productCounter].id).title['bg'] + ' * ' + response.products[productCounter].amount + '</span></div>';
     }
-    var template = orderTemplate.replace('{{email}}', response.email).replace('{{date}}', response.date).replace('{{name}}', response.name).replace('{{phone}}', response.phone).replace('{{message}}', response.message).replace('{{order}}', orders);
+    var template = orderTemplate
+      .replace('{{address}}', response.address || 'празно')
+      .replace('{{email}}', response.email || 'празно')
+      .replace('{{date}}', response.date || 'празно')
+      .replace('{{name}}', response.name || 'празно')
+      .replace('{{phone}}', response.phone || 'празно')
+      .replace('{{message}}', response.message || 'празно')
+      .replace('{{order}}', orders || 'празно');
     var mailOptions = {
       from: '"Jilanov EOOD 👥" <noreplyjilanov@gmail.com>', // sender address
       to: config.email, // list of receivers
@@ -527,6 +534,10 @@
     let number = '0'.repeat(4 - length) + numberOfOrder;
     let date = (new Date()).toISOString().split('T')[0].split('-').join('');
     return date + number;
+  }
+
+  function getProductById(id) {
+    return cache.getProductById(id);
   }
 
   function getQuery(el) {
