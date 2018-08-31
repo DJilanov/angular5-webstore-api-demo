@@ -55,7 +55,7 @@
       'email': body.email,
       'phone': body.phone,
       'message': body.message,
-      'moreinfo': body.moreinfo,
+      'address': body.address,
       'orderId': getOrderNumber(),
       'date': new Date()
     };
