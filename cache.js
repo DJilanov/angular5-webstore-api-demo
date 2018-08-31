@@ -30,7 +30,7 @@
      */
     function removeOrder(order) {
         for(var orderCounter = 0; orderCounter < orders.length; orderCounter++) {
-            if(orders[orderCounter]._id.toString() == order._id) {
+            if(orders[orderCounter]._id.toString() == order.id) {
                 orders.splice(orderCounter, 1);
                 break;
             }

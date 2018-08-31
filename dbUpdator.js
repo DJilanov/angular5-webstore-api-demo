@@ -184,7 +184,6 @@
    * @order: order object that is going to be deleted
    */
   function deleteOrder(order, res) {
-    order = JSON.parse(order);
     var query = getQuery(order);
     mongooseService.getMongoose().connection.db.collection('orders', function (err, collection) {
       if (!collection) {
@@ -193,7 +192,7 @@
       collection.remove(query, function (err, docs) {
         if (!err) {
           cache.removeOrder(order);
-          returnSuccess(res, message);
+          returnSuccess(res, order.id);
         } else {
           returnProblem(err, res);
         }
