@@ -16,14 +16,13 @@
     cache = cacheModule;
   }
   /**
-   * @fetchAllProductsAndCategories it returns all the categories and products
+   * @fetchAllWarranties it returns all the warranties
    * @req {Object} The query from the front-end
    * @res {Object} The res to the front-end
    */
-  function fetchAllProductsAndCategories(req, res) {
+  function fetchAllWarranties(req, res) {
     var response = {
-      products: cache.getProducts(),
-      categories: cache.getCategories()
+      warranties: cache.getWarranties()
     }
     res.json(response);
   }
@@ -87,11 +86,19 @@
         products: order.products,
       }
     });
+    let warranties = cache.getWarranties().map(warranty => {
+      return {
+        id: warranty._id,
+        warrantyNumber: warranty.warrantyNumber,
+        items: warranty.items
+      }
+    });
     res.status(200).json({
       products: products,
       messages: messages,
       categories: categories,
-      orders: orders
+      orders: orders,
+      warranties: warranties
     });
   }
   /**
@@ -251,6 +258,7 @@
     fetchAllMessages: fetchAllMessages,
     fetchAllProducts: fetchAllProducts,
     fetchAllCategories: fetchAllCategories,
-    fetchAllProductsAndCategories: fetchAllProductsAndCategories
+    fetchAllCategories: fetchAllCategories,
+    fetchAllWarranties: fetchAllWarranties
   };
 }());

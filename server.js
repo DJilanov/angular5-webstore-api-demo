@@ -128,11 +128,6 @@ app.delete('/api/categories', function (req, res) {
     dbUpdator.deleteCategory(req.param('category'), res);
   }
 });
-// when we call from the fetcher service we return the products and categories
-// status: Working correctly
-app.get('/api/productsAndCategories', function (req, res) {
-  dbFinder.fetchAllProductsAndCategories(req, res);
-});
 // when we call from the fetcher service we return all messages
 // status: Working correctly
 app.get('/api/message', function (req, res) {
@@ -188,6 +183,28 @@ app.post('/api/admin/login', function (req, res) {
       'success': false,
       'reason': 'Wrong Data'
     });
+  }
+});
+
+
+
+
+// when we call from the fetcher service we send Warranty and we create it
+app.post('/api/warranties', function (req, res) {
+  if (validator.validate(req.body)) {
+    dbUpdator.createWarranty(req.body.warranty, res);
+  }
+});
+// when we call from the fetcher service we send Warranty and we update it
+app.put('/api/warranties', function (req, res) {
+  if (validator.validate(req.body)) {
+    dbUpdator.updateWarranty(req.body.warranty, res);
+  }
+});
+// when we call from the fetcher service we send warranty and we delete it
+app.delete('/api/warranties', function (req, res) {
+  if (validator.validate(req.body)) {
+    dbUpdator.deleteWarranty(req.body.warranty, res);
   }
 });
 

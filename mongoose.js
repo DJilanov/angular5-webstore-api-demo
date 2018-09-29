@@ -45,6 +45,11 @@
           cache.setUsers(users);
         });
       });
+      mongoose.connection.db.collection('warranties', (err, collection) => {
+        collection.find().toArray((err, warranties) => {
+          cache.setWarranties(warranties);
+        });
+      });
     });
 
     // If the connection throws an error

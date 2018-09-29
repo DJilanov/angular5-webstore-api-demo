@@ -408,6 +408,63 @@
     });
   }
 
+  function createWarranty(warranty, res) {
+    warranty.warrantyNumber = getOrderNumber();
+    numberOfOrder++;
+    mongooseService.getMongoose().connection.db.collection('warranties', (err, collection) => {
+      if (!collection) {
+        return;
+      }
+      collection.insertOne(warranty, function (err, docs) {
+        if (!err) {
+          warranty.id = docs.insertedId.toHexString();
+          warranty._id = docs.insertedId.toHexString();
+          cache.addWarranty(warranty);
+          returnSuccess(res, warranty);
+        } else {
+          returnProblem(err, res);
+        }
+      });
+    });
+  }
+
+  function updateWarranty(warranty, res) {
+    let query = getQuery(warranty);
+    mongooseService.getMongoose().connection.db.collection('warranties', (err, collection) => {
+      if (!collection) {
+        return;
+      }
+      collection.update(query, warranty, function (err, docs) {
+        if (!err) {
+          warranty._id = warranty.id;
+          cache.updateWarranty(warranty);
+          returnSuccess(res, warranty);
+        } else {
+          // todo: handle the case when 1 gets broken but the other are correctly set
+          returnProblem(err, res);
+        }
+      });
+    });
+  }
+
+  function deleteWarranty(warranty, res) {
+    let query = getQuery(warranty);
+    mongooseService.getMongoose().connection.db.collection('warranties', (err, collection) => {
+      if (!collection) {
+        return;
+      }
+      collection.remove(query, function (err, docs) {
+        if (!err) {
+          warranty._id = warranty.id;
+          cache.deleteWarranty(warranty);
+          returnSuccess(res, warranty);
+        } else {
+          returnProblem(err, res);
+        }
+      });
+    });
+  }
+
   function randomString() {
     return crypto.createHash('sha1').update(crypto.randomBytes(20)).digest('hex');
   }
@@ -456,7 +513,7 @@
       // Save decoded binary image to disk
       try {
         fs.writeFile(userUploadedImagePath, imageBuffer.data, () => {
-          Jimp.read(userUploadedImagePath, function (err, image) {
+          Jimp.read(userUploadedImagePath, (err, image) => {
             if (err) throw err;
             image.write(__dirname + config.serverProdImageFolderPath + imageName);
             image.scaleToFit(256, Jimp.AUTO)         // resize
@@ -523,7 +580,7 @@
     if (product.other_images.indexOf(image) !== -1) {
       var x = [];
       x.filter
-      product.other_images.filter(function (other_image) {
+      product.other_images.filter((other_image) => {
         if (other_image !== image) {
           return other_image;
         }
@@ -589,5 +646,9 @@
     createCategory: createCategory,
     deleteCategory: deleteCategory,
     updateCategories: updateCategories,
+    
+    createWarranty: createWarranty,
+    deleteWarranty: deleteWarranty,
+    updateWarranty: updateWarranty,
   };
 }());
